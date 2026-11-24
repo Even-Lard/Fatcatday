@@ -61,7 +61,7 @@ a{text-decoration:none}
 .shade{position:fixed;inset:0;background:#11203991;display:none;align-items:center;justify-content:center;padding:18px;z-index:30}.shade.open{display:flex}
 .modal{background:#fff;border-radius:22px;padding:24px;width:min(100%,460px);max-height:88vh;overflow:auto;box-shadow:0 28px 70px #0003}
 .modal h2{margin:0 0 14px;font-size:20px}.modal label{font-size:13px;color:#667793;display:block;margin:13px 0 5px}
-.modal input{width:100%;padding:12px;border-radius:12px;border:1px solid #dbe3ef}
+.modal input,.modal select{width:100%;padding:12px;border-radius:12px;border:1px solid #dbe3ef;background:#fff;color:var(--ink)}
 .modal p,.modal li{font-size:14px;line-height:1.8}
 .modal .buttons{display:flex;gap:10px;margin-top:18px}.modal .buttons button{flex:1;border:none;border-radius:11px;background:#edf1f8;padding:12px}.modal .buttons .ok{background:#375fc1;color:#fff}
 .foot{margin-top:14px;color:#8593a5;font-size:12px;text-align:center}
@@ -95,6 +95,12 @@ a{text-decoration:none}
   .gear{padding:9px 11px}
 }
 
+/* V0.7：正式 API 讀取狀態 */
+.syncState{padding:10px 13px;margin-bottom:12px;border-radius:12px;font-size:13px;line-height:1.5;color:#345e95;background:#edf3ff;border:1px solid #d9e5fa}
+.syncState:empty{display:none}
+.syncState.error{color:#a34c3c;background:#fff2ed;border-color:#f5d8d0}
+.syncState.ok{color:#337b67;background:#eff9f4;border-color:#d9efe2}
+.queueRow:empty{display:none}
 /* V0.3：月曆平時只顯示假別，不顯示全隊名額；用柔和底色區分狀態 */
 .cell.restDay{background:#f0f4fa;border-color:#e2e9f4}
 .cell.leaveDay{background:#f4edfb;border-color:#ebdef6}
@@ -139,6 +145,7 @@ a{text-decoration:none}
 </header>
 
 <main class="wrap">
+  <div id="syncState" class="syncState" role="status" aria-live="polite">正在連線至正式班表…</div>
   <div class="layout">
     <section class="panel">
       <div class="heading">
@@ -151,7 +158,7 @@ a{text-decoration:none}
       </div>
 
       <div class="week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
-      <div class="calendar" id="cal"><div class="cell out" aria-hidden="true"></div><div class="cell out" aria-hidden="true"></div><button type="button" class="cell absentDay" aria-label="12月1日 缺席"><strong>1</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月2日 缺席"><strong>2</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月3日 缺席"><strong>3</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月4日 缺席"><strong>4</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月5日 缺席"><strong>5</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月6日 缺席"><strong>6</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月7日 缺席"><strong>7</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月8日 缺席"><strong>8</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月9日 缺席"><strong>9</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月10日 缺席"><strong>10</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月11日 缺席"><strong>11</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月12日 缺席"><strong>12</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月13日 缺席"><strong>13</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月14日 缺席"><strong>14</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月15日 缺席"><strong>15</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月16日 缺席"><strong>16</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月17日 缺席"><strong>17</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月18日 缺席"><strong>18</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月19日 缺席"><strong>19</strong><span class="status absent">缺席</span></button><button type="button" class="cell workDay selected" aria-label="12月20日 上班"><strong>20</strong><span class="status work">上班</span></button><button type="button" class="cell restDay" aria-label="12月21日 輪休"><strong>21</strong><span class="status rest">輪休</span></button><button type="button" class="cell workDay" aria-label="12月22日 上班"><strong>22</strong><span class="status work">上班</span></button><button type="button" class="cell restDay" aria-label="12月23日 輪休"><strong>23</strong><span class="status rest">輪休</span></button><button type="button" class="cell workDay" aria-label="12月24日 上班"><strong>24</strong><span class="status work">上班</span></button><button type="button" class="cell restDay" aria-label="12月25日 輪休"><strong>25</strong><span class="status rest">輪休</span></button><button type="button" class="cell leaveDay" aria-label="12月26日 月補"><strong>26</strong><span class="status leave">月補</span></button><button type="button" class="cell restDay" aria-label="12月27日 輪休"><strong>27</strong><span class="status rest">輪休</span></button><button type="button" class="cell workDay" aria-label="12月28日 上班"><strong>28</strong><span class="status work">上班</span></button><button type="button" class="cell restDay" aria-label="12月29日 輪休"><strong>29</strong><span class="status rest">輪休</span></button><button type="button" class="cell workDay" aria-label="12月30日 上班"><strong>30</strong><span class="status work">上班</span></button><button type="button" class="cell restDay" aria-label="12月31日 輪休"><strong>31</strong><span class="status rest">輪休</span></button></div>
+      <div class="calendar" id="cal"></div>
 
       <div class="legend">
         <span><b style="color:#16815f">●</b> 上班</span>
@@ -159,7 +166,7 @@ a{text-decoration:none}
         <span><b style="color:#9c55b9">●</b> 已請假</span>
           </div>
 
-      <div class="details" id="dayDetail">點選日期可查看當天狀態。</div>
+      <div class="details" id="dayDetail">正在取得班表資料…</div>
 
       <div class="quickActions">
         <button class="primary" data-action="請假">我要請假</button>
@@ -169,29 +176,21 @@ a{text-decoration:none}
 
       <details class="queueDetails mobileOnly" id="queueMobile">
         <summary>
-          <span class="summaryText">我的請假順位</span>
+          <span class="summaryText">我的請假順位 <small id="teamMobile" style="color:#7284a4;font-weight:500"></small></span>
           <span class="chev">⌃</span>
         </summary>
-        <div class="queueHighlight"><b>第 16 順位</b></div>
-        <div class="queueRow">
-          <div class="person"><small>前一位 · 第15</small><strong>14 號</strong><span>凃唯柔</span></div>
-          <div class="person me"><small>本人 · 第16</small><strong>15 號</strong><span>林逸凡</span></div>
-          <div class="person"><small>後一位 · 第17</small><strong>22 號</strong><span>林峻玄</span></div>
-        </div>
+        <div class="queueHighlight"><b>尚未載入</b></div>
+        <div class="queueRow" aria-live="polite"></div>
       </details>
     </section>
 
     <aside class="panel desktopQueue">
       <div class="queueTop">
         <h2 style="margin:0;font-size:18px">我的請假順位</h2>
-        <span class="teamTag">A 班</span>
+        <span class="teamTag">—</span>
       </div>
-      <div class="queueHighlight"><b>第 16 順位</b></div>
-      <div class="queueRow">
-        <div class="person"><small>前一位 · 第15</small><strong>14 號</strong><span>凃唯柔</span></div>
-        <div class="person me"><small>本人 · 第16</small><strong>15 號</strong><span>林逸凡</span></div>
-        <div class="person"><small>後一位 · 第17</small><strong>22 號</strong><span>林峻玄</span></div>
-      </div>
+      <div class="queueHighlight"><b>尚未載入</b></div>
+      <div class="queueRow" aria-live="polite"></div>
     </aside>
   </div>
   <p class="foot">肥貓代請</p>
@@ -207,101 +206,169 @@ a{text-decoration:none}
 </div>
 
 <script>
-const DAYS=Array.from({length:31},(_,i)=>{
-  const n=i+1;
-  const status=n<=19?'X':n===26?'★':n%2?'O':'上班';
-  const slots=[4,5,3,5,5,4,4,5,4,5,4,6,4,5,4,5,4,5,3,5,4,5,4,5,4,5,2,5,4,5,4];
-  return {date:`2026-12-${String(n).padStart(2,'0')}`,status,available:slots[i],canRequestLeave:status==='上班'&&slots[i]>0}
-});
+// 肥貓代請 V0.7：正式表單名單與月曆／順位 API
+// 請求經由 Cloudflare Pages Function /api 代理，不直接跨網域請求 Google Script。
+const $ = id => document.getElementById(id);
 const SYMBOL={'X':'缺席','O':'輪休','★':'月補','休':'慰假','超':'超補','補':'停補','❤':'身心','婚':'婚假','喪':'喪假','公':'公假','家':'家庭','調':'調假','上班':'上班'};
-// 首次開啟選今天；目前後端仍只有 2026/12 示範資料，其他月份明確標示未載入。
-const today=new Date();
-const todayYear=today.getFullYear(),todayMonth=today.getMonth()+1,todayDay=today.getDate();
-let year=todayYear,month=todayMonth;
+const today = new Date();
+const todayYear=today.getFullYear(), todayMonth=today.getMonth()+1, todayDay=today.getDate();
 const dateKey=(y,m,d)=>`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-let selected=dateKey(year,month,todayDay);
-let preferredDay=todayDay;
-const $=id=>document.getElementById(id);
-const storageKey='fatcat-leave-front-v02';
+let year=todayYear,month=todayMonth,selected=dateKey(year,month,todayDay),preferredDay=todayDay;
+const storageKey='fatcat-leave-front-v02'; // 延續舊版裝置設定
 let settings={};try{settings=JSON.parse(localStorage.getItem(storageKey)||'{}')}catch{}
-function displayName(){ $('hello').textContent=(settings.nick||'肥貓')+'同仁，您好！'; }
+let availableNames=[];
+let dashboard=null;
+let serverMonth=null;
+let pendingRequest=0;
+const monthKey=(y,m)=>`${y}-${String(m).padStart(2,'0')}`;
+const hasCalendar=()=>!!(dashboard && dashboard.year===year && dashboard.month===month && Array.isArray(dashboard.calendar));
+const currentDays=()=>hasCalendar()?dashboard.calendar:[];
+
+function displayName(){$('hello').textContent=(settings.nick||'肥貓')+'同仁，您好！';}
+function setStatus(message,kind=''){$('syncState').className='syncState '+kind;$('syncState').textContent=message;}
+async function api(action,name){
+  const params=new URLSearchParams({action});if(name) params.set('name',name);
+  const res=await fetch('/api?'+params.toString(),{headers:{Accept:'application/json'},cache:'no-store'});
+  let data;try{data=await res.json();}catch{throw new Error('伺服器未回傳正確的 JSON');}
+  if(!res.ok||!data.success)throw new Error(data.error||'讀取失敗');
+  return data;
+}
+function cleanName(){return String(settings.name||'').trim();}
 function render(){
   $('monthTitle').textContent=`${year} 年 ${month} 月`;
-  const c=$('cal'); c.innerHTML='';
-  const offset=new Date(year,month-1,1).getDay();
-  for(let i=0;i<offset;i++){const x=document.createElement('div');x.className='cell out';c.append(x)}
+  const c=$('cal');c.replaceChildren();
+  const days=currentDays(), lookup=new Map(days.map(day=>[day.date,day]));
+  for(let i=0;i<new Date(year,month-1,1).getDay();i++){
+    const empty=document.createElement('div');empty.className='cell out';c.append(empty);
+  }
   const len=new Date(year,month,0).getDate();
   for(let n=1;n<=len;n++){
-    const date=`${year}-${String(month).padStart(2,'0')}-${String(n).padStart(2,'0')}`;
-    const day=DAYS.find(d=>d.date===date);
-    const el=document.createElement('button');
-    el.className='cell'+(day ? ' '+(day.status==='上班'?'workDay':day.status==='O'?'restDay':day.status==='X'?'absentDay':'leaveDay') : '')+(selected===date?' selected':'');
-    if(day){
-      const klass=day.status==='上班'?'work':day.status==='O'?'rest':day.status==='X'?'absent':'leave';
-      el.innerHTML=`<strong>${n}</strong><span class="status ${klass}">${SYMBOL[day.status]||day.status}</span>`;
-    }else{
-      el.innerHTML=`<strong>${n}</strong><span class="status rest">未載入</span>`;
-    }
-    el.addEventListener('click',()=>{selected=date;preferredDay=n;render()});
-    c.append(el);
+    const date=dateKey(year,month,n),day=lookup.get(date);
+    const el=document.createElement('button');el.type='button';
+    const kind=day?(day.status==='上班'?'workDay':day.status==='O'?'restDay':day.status==='X'?'absentDay':'leaveDay'):'';
+    el.className='cell '+kind+(selected===date?' selected':'');
+    const num=document.createElement('strong');num.textContent=String(n);el.append(num);
+    const status=document.createElement('span');
+    status.className='status '+(day?(day.status==='上班'?'work':day.status==='O'?'rest':day.status==='X'?'absent':'leave'):'rest');
+    status.textContent=day?(SYMBOL[day.status]||day.status):'未載入';
+    el.append(status);
+    el.setAttribute('aria-label',`${month}月${n}日 ${status.textContent}`);
+    el.onclick=()=>{selected=date;preferredDay=n;render()};c.append(el);
   }
-  const d=DAYS.find(x=>x.date===selected);
-  $('dayDetail').textContent=d?`${d.date}｜${SYMBOL[d.status]||d.status}`:`${selected}｜尚未載入此月份資料`;
+  const day=lookup.get(selected);
+  $('dayDetail').textContent=day?`${selected}｜${SYMBOL[day.status]||day.status}`:
+    !cleanName()?'請先在「設定」選擇正式姓名，才能讀取你的班表。':
+    serverMonth&&serverMonth!==monthKey(year,month)?`${selected}｜大表目前提供 ${serverMonth.replace('-',' 年 ')} 月，這個月份尚未開放獨立查詢。`:
+    `${selected}｜尚未取得此月份資料`;
+  renderQueue();
 }
 function navigate(delta){
-  const d=new Date(year,month-1+delta,1);
-  year=d.getFullYear();month=d.getMonth()+1;
-  // 回到今天所在月份，一律選今天；其他月份保留剛才選擇的日期（月底自動調整）。
-  const isCurrentMonth=year===todayYear&&month===todayMonth;
-  // 回到今天的月份時，除了藍框回今天，也必須重設下一次跨月沿用的日期。
-  if(isCurrentMonth) preferredDay=todayDay;
-  const n=Math.min(preferredDay,new Date(year,month,0).getDate());
-  selected=dateKey(year,month,n);
-  render();
+  const d=new Date(year,month-1+delta,1);year=d.getFullYear();month=d.getMonth()+1;
+  if(year===todayYear&&month===todayMonth)preferredDay=todayDay;
+  selected=dateKey(year,month,Math.min(preferredDay,new Date(year,month,0).getDate()));
+  render();updateMonthStatus();
 }
-$('prev').onclick=()=>navigate(-1); $('next').onclick=()=>navigate(1);
-
+function updateMonthStatus(){
+  if(!cleanName()){setStatus('請到「設定」選擇正式姓名，開始讀取個人班表。');return;}
+  if(!dashboard){setStatus('正在讀取正式班表…');return;}
+  if(!hasCalendar()){
+    setStatus(`目前後台大表顯示 ${dashboard.year} 年 ${dashboard.month} 月；其他月份的獨立查詢仍在開發中。`);
+  }else setStatus('');
+}
+function personBox(person,label,me=false){
+  const el=document.createElement('div');el.className='person'+(me?' me':'');
+  const small=document.createElement('small');small.textContent=label+(person?' · 第'+person.position:'');el.append(small);
+  const strong=document.createElement('strong');strong.textContent=person?person.number+' 號':'—';el.append(strong);
+  const name=document.createElement('span');name.textContent=person?person.name:'無';el.append(name);
+  return el;
+}
+function renderQueue(){
+  const q=hasCalendar()&&dashboard&&dashboard.queue?dashboard.queue:null;
+  document.querySelectorAll('.queueHighlight b').forEach(e=>e.textContent=q?.self?'第 '+q.self.position+' 順位':'尚未載入');
+  document.querySelectorAll('.queueRow').forEach(el=>{
+    el.replaceChildren();if(!q?.self)return;
+    if(q.previous)el.append(personBox(q.previous,'前一位'));
+    el.append(personBox(q.self,'本人',true));
+    if(q.next)el.append(personBox(q.next,'後一位'));
+    el.style.gridTemplateColumns=`repeat(${el.childElementCount},minmax(0,1fr))`;
+  });
+  document.querySelectorAll('.teamTag').forEach(el=>el.textContent=q?q.team+' 班':'—');
+  const tm=$('teamMobile');if(tm)tm.textContent=q?' · '+q.team+' 班':'';
+}
+async function loadOptions(){
+  const data=await api('options');availableNames=Array.isArray(data.names)?data.names:[];
+  if(cleanName()&&!availableNames.includes(cleanName())){
+    settings.name='';localStorage.setItem(storageKey,JSON.stringify(settings));
+    setStatus('之前儲存的正式姓名已不在 Google 表單名單，請重新選擇。','error');
+    return;
+  }
+  if(!cleanName())setStatus('第一次使用請點「設定」，選擇自己的正式姓名。');
+  else await loadDashboard();
+}
+async function loadDashboard(){
+  const name=cleanName(),req=++pendingRequest;
+  if(!name){dashboard=null;serverMonth=null;render();updateMonthStatus();return;}
+  setStatus('正在同步 '+name+' 的正式班表…');
+  try{
+    const data=await api('dashboard',name);
+    if(req!==pendingRequest)return;
+    if(!Number.isInteger(data.year)||!Number.isInteger(data.month)||!Array.isArray(data.calendar))throw new Error('月曆資料格式不正確');
+    dashboard=data;serverMonth=monthKey(data.year,data.month);
+    render();updateMonthStatus();
+  }catch(err){
+    if(req!==pendingRequest)return;
+    dashboard=null;render();setStatus('無法讀取班表：'+err.message,'error');
+  }
+}
 function modal(title,html,onSave){
   if(!title.includes('加到桌面'))$('safariHelpPointer').classList.remove('show');
-  $('modalTitle').textContent=title; $('modalBody').innerHTML=html; $('overlay').classList.add('open');
-  $('save').onclick=()=>{ if(onSave&&onSave()===false)return; $('overlay').classList.remove('open');$('safariHelpPointer').classList.remove('show'); };
+  $('modalTitle').textContent=title;$('modalBody').innerHTML=html;$('overlay').classList.add('open');
+  $('save').onclick=()=>{if(onSave&&onSave()===false)return;$('overlay').classList.remove('open');$('safariHelpPointer').classList.remove('show')};
 }
 $('cancel').onclick=()=>{$('overlay').classList.remove('open');$('safariHelpPointer').classList.remove('show')};
 $('overlay').addEventListener('click',e=>{if(e.target===$('overlay')){$('overlay').classList.remove('open');$('safariHelpPointer').classList.remove('show')}});
-$('settingsBtn').onclick=()=>{
-  modal('個人設定',`<label for="fullname">正式姓名</label><input id="fullname" autocomplete="name" placeholder="例如 林逸凡"><label for="nickname">暱稱</label><input id="nickname" placeholder="肥貓"><label for="email">電子信箱</label><input id="email" type="email" placeholder="example@email.com"><p><button id="showGuide" type="button">再次查看桌面安裝教學</button></p>`,()=>{
-    settings={...settings,name:$('fullname').value.trim(),nick:$('nickname').value.trim(),email:$('email').value.trim()};
-    localStorage.setItem(storageKey,JSON.stringify(settings)); displayName();
+function showSettings(){
+  const initial=availableNames.length?'<select id="fullname" aria-label="正式姓名" required></select>':'<select id="fullname" disabled><option>名單連線中／暫時無法讀取</option></select>';
+  modal('個人設定',`<label for="fullname">正式姓名（依 Google 表單名單）</label>${initial}<label for="nickname">暱稱</label><input id="nickname" placeholder="肥貓"><label for="email">電子信箱</label><input id="email" type="email" placeholder="example@email.com"><p><button id="showGuide" type="button">再次查看桌面安裝教學</button></p>`,()=>{
+    const value=$('fullname').value.trim();
+    if(!availableNames.includes(value)){alert('請從正式名單中選擇姓名，若名單尚未載入請稍後再試。');return false;}
+    const previous=cleanName();
+    settings={...settings,name:value,nick:$('nickname').value.trim(),email:$('email').value.trim()};
+    localStorage.setItem(storageKey,JSON.stringify(settings));displayName();
+    if(previous!==value){dashboard=null;render();loadDashboard();}
   });
-  $('fullname').value=settings.name||''; $('nickname').value=settings.nick||''; $('email').value=settings.email||'';
+  if(availableNames.length){
+    const select=$('fullname');select.replaceChildren();
+    const placeholder=new Option('請選擇正式姓名','');select.add(placeholder);
+    availableNames.forEach(n=>select.add(new Option(n,n)));
+    select.value=availableNames.includes(cleanName())?cleanName():'';
+  }
+  $('nickname').value=settings.nick||'';$('email').value=settings.email||'';
 }
+$('settingsBtn').onclick=showSettings;
 document.addEventListener('click',e=>{
   if(e.target.id==='showGuide')showGuide();
-  const b=e.target.closest('[data-action]');
-  if(b){
-    if(b.dataset.action==='請假') {
-      const options=DAYS.filter(d=>d.date.slice(0,7)===`${year}-${String(month).padStart(2,'0')}` && d.canRequestLeave);
-      const html=options.length ? '<p>以下為目前示範月份可請假的日期及剩餘格數：</p><ul>'+options.map(d=>'<li>'+d.date+'｜剩'+d.available+'格</li>').join('')+'</ul>' : '<p>此月份沒有可供預覽的請假日期。</p>';
-      modal('我要請假｜名額預覽',html+'<p class="subtle">目前為示範資料，尚未開放送出。</p>');
-    } else {
-      modal('我要調假｜尚未開放','<p>調假功能將在串接正式 Google 表單後開放。</p>');
-    }
+  const b=e.target.closest('[data-action]');if(!b)return;
+  if(b.dataset.action==='請假'){
+    const days=currentDays().filter(d=>d.canRequestLeave);
+    const html=days.length?'<p>目前可申請日期與名額：</p><ul>'+days.map(d=>'<li>'+d.date+'｜'+(d.capacityLabel||'剩'+d.available+'格')+'</li>').join('')+'</ul>':'<p>目前選擇的月份尚無可確認的請假日期。</p>';
+    modal('我要請假',html+'<p class="subtle">目前尚未開放網站提交，請先使用原 Google 表單。</p>');
+  }else{
+    modal('我要調假','<p>目前調假僅可透過原 Google 表單辦理，網站提交功能尚未啟用。</p>');
   }
 });
 function showGuide(){
-  const ua=navigator.userAgent; const ios=/iPhone|iPad|iPod/.test(ua), android=/Android/.test(ua);
+  const ua=navigator.userAgent;const ios=/iPhone|iPad|iPod/.test(ua),android=/Android/.test(ua);
   const shareIcon='<svg width="22" height="22" viewBox="0 0 24 24" aria-label="分享圖示" role="img" style="vertical-align:middle;color:#3165be"><path d="M12 15V3m0 0-4 4m4-4 4 4M5 12H4v8h16v-8h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const menuIcon='<span aria-label="頁面功能按鈕" style="display:inline-flex;border:1px solid #b8c7df;border-radius:7px;padding:2px 7px;font-size:16px;color:#315c9d;vertical-align:middle">☷</span>';
-  const text=ios
-    ?'<ol class="installSteps"><li>用 <b>Safari</b> 打開網站</li><li>點下方功能按鈕 '+menuIcon+'</li><li>選「<b>分享</b>」'+shareIcon+'</li><li>點最右邊「<b>檢視較多 ﹀</b>」</li><li>往下選「<b>加入主畫面 ＋</b>」</li></ol>'
-    :android
-      ?'<ol class="installSteps"><li>用 <b>Chrome</b> 打開網站</li><li>點右上角 <b>⋮</b></li><li>選「<b>加到主畫面</b>」或「<b>安裝</b>」</li></ol>'
-      :'<p>iPhone：Safari 下方功能按鈕 → 分享 → 加入主畫面。<br>Android：Chrome 選單 ⋮ → 加到主畫面。</p>';
-  $('safariHelpPointer').classList.toggle('show',ios && !window.matchMedia('(display-mode: standalone)').matches);
+  const text=ios?'<ol class="installSteps"><li>用 <b>Safari</b> 打開網站</li><li>點下方功能按鈕 '+menuIcon+'</li><li>選「<b>分享</b>」'+shareIcon+'</li><li>點最右邊「<b>檢視較多 ﹀</b>」</li><li>往下選「<b>加入主畫面 ＋</b>」</li></ol>':android?'<ol class="installSteps"><li>用 <b>Chrome</b> 打開網站</li><li>點右上角 <b>⋮</b></li><li>選「<b>加到主畫面</b>」或「<b>安裝</b>」</li></ol>':'<p>iPhone：Safari 下方功能按鈕 → 分享 → 加入主畫面。<br>Android：Chrome 選單 ⋮ → 加到主畫面。</p>';
+  $('safariHelpPointer').classList.toggle('show',ios&&!window.matchMedia('(display-mode: standalone)').matches);
   modal('將肥貓代請加到桌面',text,()=>{localStorage.setItem('fatcat-install-help-v06','seen')});
 }
-if(!localStorage.getItem('fatcat-install-help-v06')) setTimeout(showGuide,450);
-displayName(); render();
+$('prev').onclick=()=>navigate(-1);$('next').onclick=()=>navigate(1);
+displayName();render();setStatus('正在連線至正式班表…');
+loadOptions().catch(err=>{setStatus('正式姓名名單讀取失敗：'+err.message+'；稍後可重新整理頁面。','error');});
+if(!localStorage.getItem('fatcat-install-help-v06'))setTimeout(showGuide,450);
 </script>
 </body>
 </html>
