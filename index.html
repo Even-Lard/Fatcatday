@@ -42,7 +42,7 @@ a{text-decoration:none}
 .details{margin-top:12px;background:#f6f8fc;border-radius:13px;padding:12px;font-size:13px;line-height:1.7}
 .quickActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 .quickActions button{border:0;border-radius:12px;padding:12px 8px;font-weight:700}
-.quickActions .primary{background:#3663c3;color:#fff}.quickActions .secondary{background:#eaf0ff;color:#3156a4}
+.quickActions .primary{background:#3663c3;color:#fff}.quickActions .secondary{background:#3663c3;color:#fff}
 .sheetLink{display:block;text-align:center;margin-top:12px;font-size:13px;color:#4069ce;font-weight:600}
 .queueTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .teamTag{font-size:12px;color:#7284a4}
@@ -113,6 +113,13 @@ a{text-decoration:none}
  .quickActions button{min-height:44px}
  .cell .status{font-size:10px;white-space:nowrap}
 }
+/* iOS Safari 導覽提示只指向瀏覽器底部操作區，不會偽裝成可點擊的分享按鈕。 */
+.safariHelpPointer{display:none;position:fixed;bottom:calc(78px + env(safe-area-inset-bottom));left:max(12px,10vw);z-index:45;pointer-events:none;width:min(230px,68vw);text-align:center;filter:drop-shadow(0 5px 14px #19315b44)}
+.safariHelpPointer.show{display:block}
+.safariHelpPointer .bubble{background:#244a9d;color:#fff;border-radius:15px;padding:10px 12px;font-size:13px;font-weight:700;line-height:1.5}
+.safariHelpPointer .arrow{color:#244a9d;font-size:34px;font-weight:900;line-height:1;margin-top:0;animation:nudge 1.2s ease-in-out infinite alternate}
+@keyframes nudge{to{transform:translateY(8px)}}
+@media (min-width:861px){.safariHelpPointer{left:calc(50% - 110px)}}
 </style>
 </head>
 <body>
@@ -148,7 +155,7 @@ a{text-decoration:none}
         <span><b style="color:#9c55b9">●</b> 已請假</span>
           </div>
 
-      <div class="details" id="dayDetail">2026-12-20｜上班</div>
+      <div class="details" id="dayDetail">點選日期可查看當天狀態。</div>
 
       <div class="quickActions">
         <button class="primary" data-action="請假">我要請假</button>
@@ -156,7 +163,7 @@ a{text-decoration:none}
       </div>
       <a class="sheetLink" href="https://docs.google.com/spreadsheets/d/1nSZ699cJH4cBpsaZIX1U8yaasWxiNXkBe-tDdBkq7Ck/edit?usp=sharing" target="_blank" rel="noopener">查看完整假表 ↗</a>
 
-      <details class="queueDetails mobileOnly" id="queueMobile" open>
+      <details class="queueDetails mobileOnly" id="queueMobile">
         <summary>
           <span class="summaryText">我的請假順位</span>
           <span class="chev">⌃</span>
@@ -186,6 +193,7 @@ a{text-decoration:none}
   <p class="foot">肥貓代請</p>
 </main>
 
+<div class="safariHelpPointer" id="safariHelpPointer" aria-hidden="true"><div class="bubble">先找 Safari 下方的工具列<br>點分享圖示或頁面選單</div><div class="arrow">↓</div></div>
 <div class="shade" id="overlay">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <h2 id="modalTitle">個人設定</h2>
@@ -202,7 +210,13 @@ const DAYS=Array.from({length:31},(_,i)=>{
   return {date:`2026-12-${String(n).padStart(2,'0')}`,status,available:slots[i],canRequestLeave:status==='上班'&&slots[i]>0}
 });
 const SYMBOL={'X':'缺席','O':'輪休','★':'月補','休':'慰假','超':'超補','補':'停補','❤':'身心','婚':'婚假','喪':'喪假','公':'公假','家':'家庭','調':'調假','上班':'上班'};
-let selected='2026-12-20',year=2026,month=12;
+// 首次開啟選今天；目前後端仍只有 2026/12 示範資料，其他月份明確標示未載入。
+const today=new Date();
+const todayYear=today.getFullYear(),todayMonth=today.getMonth()+1,todayDay=today.getDate();
+let year=todayYear,month=todayMonth;
+const dateKey=(y,m,d)=>`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+let selected=dateKey(year,month,todayDay);
+let preferredDay=todayDay;
 const $=id=>document.getElementById(id);
 const storageKey='fatcat-leave-front-v02';
 let settings={};try{settings=JSON.parse(localStorage.getItem(storageKey)||'{}')}catch{}
@@ -224,21 +238,30 @@ function render(){
     }else{
       el.innerHTML=`<strong>${n}</strong><span class="status rest">未載入</span>`;
     }
-    el.addEventListener('click',()=>{selected=date;render()});
+    el.addEventListener('click',()=>{selected=date;preferredDay=n;render()});
     c.append(el);
   }
   const d=DAYS.find(x=>x.date===selected);
   $('dayDetail').textContent=d?`${d.date}｜${SYMBOL[d.status]||d.status}`:`${selected}｜尚未載入此月份資料`;
 }
-function navigate(delta){const d=new Date(year,month-1+delta,1);year=d.getFullYear();month=d.getMonth()+1;selected=`${year}-${String(month).padStart(2,'0')}-01`;render()}
+function navigate(delta){
+  const d=new Date(year,month-1+delta,1);
+  year=d.getFullYear();month=d.getMonth()+1;
+  // 回到今天所在月份，一律選今天；其他月份保留剛才選擇的日期（月底自動調整）。
+  const n=(year===todayYear&&month===todayMonth)
+    ?todayDay:Math.min(preferredDay,new Date(year,month,0).getDate());
+  selected=dateKey(year,month,n);
+  render();
+}
 $('prev').onclick=()=>navigate(-1); $('next').onclick=()=>navigate(1);
 
 function modal(title,html,onSave){
+  if(!title.includes('加到桌面'))$('safariHelpPointer').classList.remove('show');
   $('modalTitle').textContent=title; $('modalBody').innerHTML=html; $('overlay').classList.add('open');
-  $('save').onclick=()=>{ if(onSave&&onSave()===false)return; $('overlay').classList.remove('open'); };
+  $('save').onclick=()=>{ if(onSave&&onSave()===false)return; $('overlay').classList.remove('open');$('safariHelpPointer').classList.remove('show'); };
 }
-$('cancel').onclick=()=>$('overlay').classList.remove('open');
-$('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))$('overlay').classList.remove('open')});
+$('cancel').onclick=()=>{$('overlay').classList.remove('open');$('safariHelpPointer').classList.remove('show')};
+$('overlay').addEventListener('click',e=>{if(e.target===$('overlay')){$('overlay').classList.remove('open');$('safariHelpPointer').classList.remove('show')}});
 $('settingsBtn').onclick=()=>{
   modal('個人設定',`<label for="fullname">正式姓名</label><input id="fullname" autocomplete="name" placeholder="例如 林逸凡"><label for="nickname">暱稱</label><input id="nickname" placeholder="肥貓"><label for="email">電子信箱</label><input id="email" type="email" placeholder="example@email.com"><p><button id="showGuide" type="button">再次查看桌面安裝教學</button></p>`,()=>{
     settings={...settings,name:$('fullname').value.trim(),nick:$('nickname').value.trim(),email:$('email').value.trim()};
@@ -261,7 +284,8 @@ document.addEventListener('click',e=>{
 });
 function showGuide(){
   const ua=navigator.userAgent; const ios=/iPhone|iPad|iPod/.test(ua), android=/Android/.test(ua);
-  const text=ios?'<p>iPhone／iPad（Safari）：</p><ol><li>請先用 Safari 開啟網站</li><li>點選分享圖示</li><li>選「加入主畫面」後按加入</li></ol>':android?'<p>Android（Chrome）：</p><ol><li>請用 Chrome 開啟網站</li><li>點右上角選單 ⋮</li><li>選「加到主畫面」或「安裝應用程式」</li></ol>':'<p>在 iPhone Safari 或 Android Chrome 開啟後，可用「加入主畫面」建立桌面圖示。</p>';
+  const text=ios?'<p><b>iPhone／iPad（Safari）</b></p><ol><li>請確認目前是用 Safari 開啟，不是在 LINE 或其他 App 的內建預覽器。</li><li>請看畫面<b>最下方工具列</b>（下方有藍色箭頭提示）。找到分享圖示「方框向上箭頭」；若沒有看到分享圖示，可先點工具列的頁面選單，再找「分享」。</li><li>在分享選單中向下捲動，選「加入主畫面」，然後按「加入」。</li></ol><p class="subtle">不同 iOS 版本的按鈕位置可能不同；箭頭指的是 Safari 工具列區域。</p>':android?'<p><b>Android（Chrome）</b></p><ol><li>請用 Chrome 開啟網站。</li><li>點右上角選單 ⋮。</li><li>選「加到主畫面」或「安裝應用程式」。</li></ol>':'<p>在 iPhone Safari 或 Android Chrome 開啟後，可使用「加入主畫面」建立桌面圖示。</p>';
+  $('safariHelpPointer').classList.toggle('show',ios && !window.matchMedia('(display-mode: standalone)').matches);
   modal('將肥貓代請加到桌面',text,()=>{localStorage.setItem('fatcat-install-help-v02','seen')});
 }
 if(!localStorage.getItem('fatcat-install-help-v02')) setTimeout(showGuide,450);
