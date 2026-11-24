@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>肥貓代請</title>
+<meta name="theme-color" content="#162b4c">
+<style>
+:root{
+  color-scheme:light;
+  --navy:#162b4c;--ink:#21304b;--muted:#718098;--stroke:#e5ebf3;--blue:#4069ce;--blue-soft:#eaf0ff;--bg:#f5f8fc;
+  --green:#16815f;--gray:#76879b;--purple:#9c55b9;--brown:#b27c42;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:var(--ink)}
+button,input{font:inherit}button{cursor:pointer}
+a{text-decoration:none}
+.top{background:var(--navy);color:#fff;padding:14px max(16px,env(safe-area-inset-left))}
+.top-in{max-width:1080px;margin:auto;display:flex;align-items:center;gap:12px}
+.mascot{width:56px;height:56px;border-radius:16px;background:linear-gradient(160deg,#f3c046,#ffe18f);display:grid;place-items:center;flex:none;box-shadow:inset 0 0 0 1px #ffffff55;color:#5b3d00;font-weight:800;font-size:13px;line-height:1.1;text-align:center}
+.brand h1{font-size:22px;line-height:1.1;margin:0 0 4px}
+.brand p{margin:0;font-size:12px;opacity:.85}
+.gear{margin-left:auto;border:1px solid #ffffff44;background:#ffffff18;color:#fff;padding:10px 14px;border-radius:12px}
+.wrap{max-width:1080px;margin:auto;padding:18px 14px 40px}
+.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.95fr);gap:16px;align-items:start}
+.panel{background:#fff;border:1px solid var(--stroke);border-radius:20px;box-shadow:0 6px 24px #203f7810;padding:18px}
+.heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.heading h2{font-size:17px;margin:0}
+.monthNav{display:flex;align-items:center;gap:8px}
+.monthNav button{width:34px;height:34px;border-radius:11px;border:0;background:#f2f5fb;color:var(--ink)}
+.monthNav b{min-width:102px;text-align:center;font-size:15px}
+.week,.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.week{margin:10px 0 6px}
+.week span{text-align:center;font-size:12px;color:var(--muted)}
+.cell{appearance:none;border:1px solid #e7edf7;border-radius:12px;background:#fff;min-height:82px;padding:7px 5px;display:flex;flex-direction:column;gap:3px;align-items:flex-start;justify-content:flex-start;color:var(--ink);text-align:left;min-width:0}
+.cell:hover{border-color:#a6bdfa}.cell.out{border-color:transparent;background:transparent}.cell.selected{outline:2px solid var(--blue);outline-offset:-2px}
+.cell strong{font-size:13px;font-weight:700}
+.status{font-size:11px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.status.work{color:var(--green)}.status.rest{color:var(--gray)}.status.leave{color:var(--purple)}.status.absent{color:var(--brown)}
+.slots{font-size:10px;color:#7f90a5;margin-top:auto}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:#78869b}.legend b{font-weight:700}
+.details{margin-top:12px;background:#f6f8fc;border-radius:13px;padding:12px;font-size:13px;line-height:1.7}
+.quickActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.quickActions button{border:0;border-radius:12px;padding:12px 8px;font-weight:700}
+.quickActions .primary{background:#3663c3;color:#fff}.quickActions .secondary{background:#eaf0ff;color:#3156a4}
+.sheetLink{display:block;text-align:center;margin-top:12px;font-size:13px;color:#4069ce;font-weight:600}
+.queueTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.teamTag{font-size:12px;color:#7284a4}
+.queueHighlight{background:linear-gradient(125deg,#eaf1ff,#f1eaff);border-radius:16px;padding:18px 16px;text-align:center;margin:12px 0}
+.queueHighlight b{font-size:30px;color:#2d4d94;display:block}
+.queueRow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.person{background:#f6f8fc;border-radius:13px;text-align:center;padding:10px 5px;min-width:0}.person.me{background:#e9efff}
+.person small{display:block;color:#75849d;font-size:11px}
+.person strong{display:block;margin:6px 0 4px;font-size:16px}.person span{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.queueDetails summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-weight:700;color:var(--ink)}
+.queueDetails summary::-webkit-details-marker{display:none}
+.queueDetails .summaryText{display:flex;align-items:center;gap:8px}
+.queueDetails .chev{font-size:12px;color:#7383a0}
+.queueDetails[open] .chev{transform:rotate(180deg)}
+.subtle{color:#8090a5;font-size:12px;line-height:1.6;margin-top:10px}
+.shade{position:fixed;inset:0;background:#11203991;display:none;align-items:center;justify-content:center;padding:18px;z-index:30}.shade.open{display:flex}
+.modal{background:#fff;border-radius:22px;padding:24px;width:min(100%,460px);max-height:88vh;overflow:auto;box-shadow:0 28px 70px #0003}
+.modal h2{margin:0 0 14px;font-size:20px}.modal label{font-size:13px;color:#667793;display:block;margin:13px 0 5px}
+.modal input{width:100%;padding:12px;border-radius:12px;border:1px solid #dbe3ef}
+.modal p,.modal li{font-size:14px;line-height:1.8}
+.modal .buttons{display:flex;gap:10px;margin-top:18px}.modal .buttons button{flex:1;border:none;border-radius:11px;background:#edf1f8;padding:12px}.modal .buttons .ok{background:#375fc1;color:#fff}
+.foot{margin-top:14px;color:#8593a5;font-size:12px;text-align:center}
+.desktopOnly{display:block}.mobileOnly{display:none}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr}
+  .desktopQueue{display:none}
+  .mobileOnly{display:block}
+}
+@media (max-width:560px){
+  .top{padding:12px max(12px,env(safe-area-inset-left))}
+  .top-in{align-items:center}
+  .brand h1{font-size:20px}
+  .wrap{padding:12px 10px 28px}
+  .panel{padding:14px}
+  .heading h2{font-size:16px}
+  .monthNav b{min-width:92px;font-size:14px}
+  .week span{font-size:11px}
+  .calendar,.week{gap:4px}
+  .cell{min-height:46px;padding:5px 3px;border-radius:10px}
+  .cell strong{font-size:12px}
+  .status{font-size:10px}
+  .slots{display:none}
+  .details{padding:10px;font-size:12px}
+  .legend{gap:10px;font-size:11px}
+  .quickActions{margin-top:12px}
+  .quickActions button{padding:11px 6px}
+  .queueHighlight{padding:14px 12px}.queueHighlight b{font-size:26px}
+  .queueRow{gap:6px}.person{padding:8px 4px}.person strong{font-size:15px}.person span{font-size:11px}
+  .mascot{width:48px;height:48px;font-size:12px;border-radius:14px}
+  .gear{padding:9px 11px}
+}
+
+/* V0.3：月曆平時只顯示假別，不顯示全隊名額；用柔和底色區分狀態 */
+.cell.restDay{background:#f0f4fa;border-color:#e2e9f4}
+.cell.leaveDay{background:#f4edfb;border-color:#ebdef6}
+.cell.absentDay{background:#fff3e9;border-color:#fae7d7}
+.cell.workDay{background:#fff}
+.cell .status{color:#263856 !important;text-overflow:clip}
+.cell .status.work{color:#14714f !important}
+.cell .status.rest{color:#50647e !important}
+.cell .status.leave{color:#7945a4 !important}
+.cell .status.absent{color:#975d31 !important}
+.cell.selected{outline:2px solid var(--blue);outline-offset:-2px}
+.cell .slots{display:none !important}
+@media(max-width:560px){
+ .quickActions{position:sticky;bottom:env(safe-area-inset-bottom);z-index:5;
+   background:#ffffffee;backdrop-filter:blur(12px);padding:7px 0 8px;margin-top:6px}
+ .quickActions button{min-height:44px}
+ .cell .status{font-size:10px;white-space:nowrap}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="mascot" aria-label="肥貓圖示預留">肥貓<br>預留</div>
+    <div class="brand">
+      <h1 id="hello">肥貓同仁，您好！</h1>
+      <p>大園分隊 · 肥貓代請</p>
+    </div>
+    <button class="gear" id="settingsBtn">⚙ 設定</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="layout">
+    <section class="panel">
+      <div class="heading">
+        <h2>個人月曆</h2>
+        <div class="monthNav">
+          <button id="prev" aria-label="上個月">‹</button>
+          <b id="monthTitle">2026 年 12 月</b>
+          <button id="next" aria-label="下個月">›</button>
+        </div>
+      </div>
+
+      <div class="week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+      <div class="calendar" id="cal"><div class="cell out" aria-hidden="true"></div><div class="cell out" aria-hidden="true"></div><button type="button" class="cell absentDay" aria-label="12月1日 缺席"><strong>1</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月2日 缺席"><strong>2</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月3日 缺席"><strong>3</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月4日 缺席"><strong>4</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月5日 缺席"><strong>5</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月6日 缺席"><strong>6</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月7日 缺席"><strong>7</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月8日 缺席"><strong>8</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月9日 缺席"><strong>9</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月10日 缺席"><strong>10</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月11日 缺席"><strong>11</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月12日 缺席"><strong>12</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月13日 缺席"><strong>13</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月14日 缺席"><strong>14</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月15日 缺席"><strong>15</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月16日 缺席"><strong>16</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月17日 缺席"><strong>17</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月18日 缺席"><strong>18</strong><span class="status absent">缺席</span></button><button type="button" class="cell absentDay" aria-label="12月19日 缺席"><strong>19</strong><span class="status absent">缺席</span></button><button type="button" class="cell workDay selected" aria-label="12月20日 上班"><strong>20</strong><span class="status work">上班</span></button><button type="button" class="cell restDay" aria-label="12月21日 輪休"><strong>21</strong><span class="status rest">輪休</span></button><button type="button" class="cell workDay" aria-label="12月22日 上班"><strong>22</strong><span class="status work">上班</span></button><button type="button" class="cell restDay" aria-label="12月23日 輪休"><strong>23</strong><span class="status rest">輪休</span></button><button type="button" class="cell workDay" aria-label="12月24日 上班"><strong>24</strong><span class="status work">上班</span></button><button type="button" class="cell restDay" aria-label="12月25日 輪休"><strong>25</strong><span class="status rest">輪休</span></button><button type="button" class="cell leaveDay" aria-label="12月26日 月補"><strong>26</strong><span class="status leave">月補</span></button><button type="button" class="cell restDay" aria-label="12月27日 輪休"><strong>27</strong><span class="status rest">輪休</span></button><button type="button" class="cell workDay" aria-label="12月28日 上班"><strong>28</strong><span class="status work">上班</span></button><button type="button" class="cell restDay" aria-label="12月29日 輪休"><strong>29</strong><span class="status rest">輪休</span></button><button type="button" class="cell workDay" aria-label="12月30日 上班"><strong>30</strong><span class="status work">上班</span></button><button type="button" class="cell restDay" aria-label="12月31日 輪休"><strong>31</strong><span class="status rest">輪休</span></button></div>
+
+      <div class="legend">
+        <span><b style="color:#16815f">●</b> 上班</span>
+        <span><b style="color:#76879b">●</b> 輪休</span>
+        <span><b style="color:#9c55b9">●</b> 已請假</span>
+          </div>
+
+      <div class="details" id="dayDetail">2026-12-20｜上班</div>
+
+      <div class="quickActions">
+        <button class="primary" data-action="請假">我要請假</button>
+        <button class="secondary" data-action="調假">我要調假</button>
+      </div>
+      <a class="sheetLink" href="https://docs.google.com/spreadsheets/d/1nSZ699cJH4cBpsaZIX1U8yaasWxiNXkBe-tDdBkq7Ck/edit?usp=sharing" target="_blank" rel="noopener">查看完整假表 ↗</a>
+
+      <details class="queueDetails mobileOnly" id="queueMobile" open>
+        <summary>
+          <span class="summaryText">我的請假順位</span>
+          <span class="chev">⌃</span>
+        </summary>
+        <div class="queueHighlight"><b>第 16 順位</b></div>
+        <div class="queueRow">
+          <div class="person"><small>前一位 · 第15</small><strong>14 號</strong><span>凃唯柔</span></div>
+          <div class="person me"><small>本人 · 第16</small><strong>15 號</strong><span>林逸凡</span></div>
+          <div class="person"><small>後一位 · 第17</small><strong>22 號</strong><span>林峻玄</span></div>
+        </div>
+      </details>
+    </section>
+
+    <aside class="panel desktopQueue">
+      <div class="queueTop">
+        <h2 style="margin:0;font-size:18px">我的請假順位</h2>
+        <span class="teamTag">A 班</span>
+      </div>
+      <div class="queueHighlight"><b>第 16 順位</b></div>
+      <div class="queueRow">
+        <div class="person"><small>前一位 · 第15</small><strong>14 號</strong><span>凃唯柔</span></div>
+        <div class="person me"><small>本人 · 第16</small><strong>15 號</strong><span>林逸凡</span></div>
+        <div class="person"><small>後一位 · 第17</small><strong>22 號</strong><span>林峻玄</span></div>
+      </div>
+    </aside>
+  </div>
+  <p class="foot">肥貓代請</p>
+</main>
+
+<div class="shade" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle">個人設定</h2>
+    <div id="modalBody"></div>
+    <div class="buttons"><button id="cancel">關閉</button><button id="save" class="ok">完成</button></div>
+  </div>
+</div>
+
+<script>
+const DAYS=Array.from({length:31},(_,i)=>{
+  const n=i+1;
+  const status=n<=19?'X':n===26?'★':n%2?'O':'上班';
+  const slots=[4,5,3,5,5,4,4,5,4,5,4,6,4,5,4,5,4,5,3,5,4,5,4,5,4,5,2,5,4,5,4];
+  return {date:`2026-12-${String(n).padStart(2,'0')}`,status,available:slots[i],canRequestLeave:status==='上班'&&slots[i]>0}
+});
+const SYMBOL={'X':'缺席','O':'輪休','★':'月補','休':'慰假','超':'超補','補':'停補','❤':'身心','婚':'婚假','喪':'喪假','公':'公假','家':'家庭','調':'調假','上班':'上班'};
+let selected='2026-12-20',year=2026,month=12;
+const $=id=>document.getElementById(id);
+const storageKey='fatcat-leave-front-v02';
+let settings={};try{settings=JSON.parse(localStorage.getItem(storageKey)||'{}')}catch{}
+function displayName(){ $('hello').textContent=(settings.nick||'肥貓')+'同仁，您好！'; }
+function render(){
+  $('monthTitle').textContent=`${year} 年 ${month} 月`;
+  const c=$('cal'); c.innerHTML='';
+  const offset=new Date(year,month-1,1).getDay();
+  for(let i=0;i<offset;i++){const x=document.createElement('div');x.className='cell out';c.append(x)}
+  const len=new Date(year,month,0).getDate();
+  for(let n=1;n<=len;n++){
+    const date=`${year}-${String(month).padStart(2,'0')}-${String(n).padStart(2,'0')}`;
+    const day=DAYS.find(d=>d.date===date);
+    const el=document.createElement('button');
+    el.className='cell'+(day ? ' '+(day.status==='上班'?'workDay':day.status==='O'?'restDay':day.status==='X'?'absentDay':'leaveDay') : '')+(selected===date?' selected':'');
+    if(day){
+      const klass=day.status==='上班'?'work':day.status==='O'?'rest':day.status==='X'?'absent':'leave';
+      el.innerHTML=`<strong>${n}</strong><span class="status ${klass}">${SYMBOL[day.status]||day.status}</span>`;
+    }else{
+      el.innerHTML=`<strong>${n}</strong><span class="status rest">未載入</span>`;
+    }
+    el.addEventListener('click',()=>{selected=date;render()});
+    c.append(el);
+  }
+  const d=DAYS.find(x=>x.date===selected);
+  $('dayDetail').textContent=d?`${d.date}｜${SYMBOL[d.status]||d.status}`:`${selected}｜尚未載入此月份資料`;
+}
+function navigate(delta){const d=new Date(year,month-1+delta,1);year=d.getFullYear();month=d.getMonth()+1;selected=`${year}-${String(month).padStart(2,'0')}-01`;render()}
+$('prev').onclick=()=>navigate(-1); $('next').onclick=()=>navigate(1);
+
+function modal(title,html,onSave){
+  $('modalTitle').textContent=title; $('modalBody').innerHTML=html; $('overlay').classList.add('open');
+  $('save').onclick=()=>{ if(onSave&&onSave()===false)return; $('overlay').classList.remove('open'); };
+}
+$('cancel').onclick=()=>$('overlay').classList.remove('open');
+$('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))$('overlay').classList.remove('open')});
+$('settingsBtn').onclick=()=>{
+  modal('個人設定',`<label for="fullname">正式姓名</label><input id="fullname" autocomplete="name" placeholder="例如 林逸凡"><label for="nickname">暱稱</label><input id="nickname" placeholder="肥貓"><label for="email">電子信箱</label><input id="email" type="email" placeholder="example@email.com"><p><button id="showGuide" type="button">再次查看桌面安裝教學</button></p>`,()=>{
+    settings={...settings,name:$('fullname').value.trim(),nick:$('nickname').value.trim(),email:$('email').value.trim()};
+    localStorage.setItem(storageKey,JSON.stringify(settings)); displayName();
+  });
+  $('fullname').value=settings.name||''; $('nickname').value=settings.nick||''; $('email').value=settings.email||'';
+}
+document.addEventListener('click',e=>{
+  if(e.target.id==='showGuide')showGuide();
+  const b=e.target.closest('[data-action]');
+  if(b){
+    if(b.dataset.action==='請假') {
+      const options=DAYS.filter(d=>d.date.slice(0,7)===`${year}-${String(month).padStart(2,'0')}` && d.canRequestLeave);
+      const html=options.length ? '<p>以下為目前示範月份可請假的日期及剩餘格數：</p><ul>'+options.map(d=>'<li>'+d.date+'｜剩'+d.available+'格</li>').join('')+'</ul>' : '<p>此月份沒有可供預覽的請假日期。</p>';
+      modal('我要請假｜名額預覽',html+'<p class="subtle">目前為示範資料，尚未開放送出。</p>');
+    } else {
+      modal('我要調假｜尚未開放','<p>調假功能將在串接正式 Google 表單後開放。</p>');
+    }
+  }
+});
+function showGuide(){
+  const ua=navigator.userAgent; const ios=/iPhone|iPad|iPod/.test(ua), android=/Android/.test(ua);
+  const text=ios?'<p>iPhone／iPad（Safari）：</p><ol><li>請先用 Safari 開啟網站</li><li>點選分享圖示</li><li>選「加入主畫面」後按加入</li></ol>':android?'<p>Android（Chrome）：</p><ol><li>請用 Chrome 開啟網站</li><li>點右上角選單 ⋮</li><li>選「加到主畫面」或「安裝應用程式」</li></ol>':'<p>在 iPhone Safari 或 Android Chrome 開啟後，可用「加入主畫面」建立桌面圖示。</p>';
+  modal('將肥貓代請加到桌面',text,()=>{localStorage.setItem('fatcat-install-help-v02','seen')});
+}
+if(!localStorage.getItem('fatcat-install-help-v02')) setTimeout(showGuide,450);
+displayName(); render();
+</script>
+</body>
+</html>
