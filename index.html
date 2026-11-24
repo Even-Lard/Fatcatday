@@ -113,13 +113,17 @@ a{text-decoration:none}
  .quickActions button{min-height:44px}
  .cell .status{font-size:10px;white-space:nowrap}
 }
-/* iOS Safari 導覽提示只指向瀏覽器底部操作區，不會偽裝成可點擊的分享按鈕。 */
-.safariHelpPointer{display:none;position:fixed;bottom:calc(78px + env(safe-area-inset-bottom));left:max(12px,10vw);z-index:45;pointer-events:none;width:min(230px,68vw);text-align:center;filter:drop-shadow(0 5px 14px #19315b44)}
+/* 安裝教學：短句大字、不要擠出行動按鈕。 */
+.installSteps{padding-left:25px;margin:4px 0 8px}.installSteps li{padding:7px 0;font-size:16px;line-height:1.55}.installSteps li::marker{color:#3663c3;font-weight:800}
+/* iOS Safari 操作提示：指向畫面左下約 26% 處的 Safari 頁面功能鍵。
+   Safari 工具列屬於瀏覽器介面，網頁不能取得精確座標；保持固定的視覺指引即可。 */
+.safariHelpPointer{display:none;position:fixed;left:26%;bottom:0;transform:translateX(-50%);z-index:45;pointer-events:none;text-align:center;width:148px;filter:drop-shadow(0 3px 8px #1c376f66)}
 .safariHelpPointer.show{display:block}
-.safariHelpPointer .bubble{background:#244a9d;color:#fff;border-radius:15px;padding:10px 12px;font-size:13px;font-weight:700;line-height:1.5}
-.safariHelpPointer .arrow{color:#244a9d;font-size:34px;font-weight:900;line-height:1;margin-top:0;animation:nudge 1.2s ease-in-out infinite alternate}
-@keyframes nudge{to{transform:translateY(8px)}}
-@media (min-width:861px){.safariHelpPointer{left:calc(50% - 110px)}}
+.safariHelpPointer .bubble{display:inline-block;background:#244a9d;color:white;border-radius:11px;padding:7px 12px;font-size:13px;font-weight:750;white-space:nowrap}
+.safariHelpPointer .arrow{display:block;margin:0 auto;height:78px;width:60px;overflow:visible;animation:pointDown 1.2s ease-in-out infinite alternate}
+.safariHelpPointer .arrow path{fill:none;stroke:#244a9d;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+@keyframes pointDown{to{transform:translateY(5px)}}
+@media(min-width:861px){.safariHelpPointer{left:calc(50% - 260px)}}
 </style>
 </head>
 <body>
@@ -193,7 +197,7 @@ a{text-decoration:none}
   <p class="foot">肥貓代請</p>
 </main>
 
-<div class="safariHelpPointer" id="safariHelpPointer" aria-hidden="true"><div class="bubble">先找 Safari 下方的工具列<br>點分享圖示或頁面選單</div><div class="arrow">↓</div></div>
+<div class="safariHelpPointer" id="safariHelpPointer" aria-hidden="true"><div class="bubble">點這裡：功能按鈕</div><svg class="arrow" viewBox="0 0 60 78" aria-hidden="true"><path d="M30 4 V62 M14 46 L30 65 L46 46"/></svg></div>
 <div class="shade" id="overlay">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <h2 id="modalTitle">個人設定</h2>
@@ -248,8 +252,10 @@ function navigate(delta){
   const d=new Date(year,month-1+delta,1);
   year=d.getFullYear();month=d.getMonth()+1;
   // 回到今天所在月份，一律選今天；其他月份保留剛才選擇的日期（月底自動調整）。
-  const n=(year===todayYear&&month===todayMonth)
-    ?todayDay:Math.min(preferredDay,new Date(year,month,0).getDate());
+  const isCurrentMonth=year===todayYear&&month===todayMonth;
+  // 回到今天的月份時，除了藍框回今天，也必須重設下一次跨月沿用的日期。
+  if(isCurrentMonth) preferredDay=todayDay;
+  const n=Math.min(preferredDay,new Date(year,month,0).getDate());
   selected=dateKey(year,month,n);
   render();
 }
@@ -284,7 +290,13 @@ document.addEventListener('click',e=>{
 });
 function showGuide(){
   const ua=navigator.userAgent; const ios=/iPhone|iPad|iPod/.test(ua), android=/Android/.test(ua);
-  const text=ios?'<p><b>iPhone／iPad（Safari）</b></p><ol><li>請確認目前是用 Safari 開啟，不是在 LINE 或其他 App 的內建預覽器。</li><li>請看畫面<b>最下方工具列</b>（下方有藍色箭頭提示）。找到分享圖示「方框向上箭頭」；若沒有看到分享圖示，可先點工具列的頁面選單，再找「分享」。</li><li>在分享選單中向下捲動，選「加入主畫面」，然後按「加入」。</li></ol><p class="subtle">不同 iOS 版本的按鈕位置可能不同；箭頭指的是 Safari 工具列區域。</p>':android?'<p><b>Android（Chrome）</b></p><ol><li>請用 Chrome 開啟網站。</li><li>點右上角選單 ⋮。</li><li>選「加到主畫面」或「安裝應用程式」。</li></ol>':'<p>在 iPhone Safari 或 Android Chrome 開啟後，可使用「加入主畫面」建立桌面圖示。</p>';
+  const shareIcon='<svg width="22" height="22" viewBox="0 0 24 24" aria-label="分享圖示" role="img" style="vertical-align:middle;color:#3165be"><path d="M12 15V3m0 0-4 4m4-4 4 4M5 12H4v8h16v-8h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const menuIcon='<span aria-label="頁面功能按鈕" style="display:inline-flex;border:1px solid #b8c7df;border-radius:7px;padding:2px 7px;font-size:16px;color:#315c9d;vertical-align:middle">☷</span>';
+  const text=ios
+    ?'<ol class="installSteps"><li>用 <b>Safari</b> 打開網站</li><li>點下方功能按鈕 '+menuIcon+'</li><li>選「<b>分享</b>」'+shareIcon+'</li><li>往下找「<b>加入主畫面 ＋</b>」</li></ol>'
+    :android
+      ?'<ol class="installSteps"><li>用 <b>Chrome</b> 打開網站</li><li>點右上角 <b>⋮</b></li><li>選「<b>加到主畫面</b>」或「<b>安裝</b>」</li></ol>'
+      :'<p>iPhone：Safari 下方功能按鈕 → 分享 → 加入主畫面。<br>Android：Chrome 選單 ⋮ → 加到主畫面。</p>';
   $('safariHelpPointer').classList.toggle('show',ios && !window.matchMedia('(display-mode: standalone)').matches);
   modal('將肥貓代請加到桌面',text,()=>{localStorage.setItem('fatcat-install-help-v02','seen')});
 }
