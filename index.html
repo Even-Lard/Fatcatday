@@ -95,6 +95,15 @@ a{text-decoration:none}
   .gear{padding:9px 11px}
 }
 
+/* V0.8：輕量化同步動畫，不擋住月曆操作 */
+.syncState.loading{display:flex;align-items:center;gap:10px}
+.syncState.loading::before{
+  content:"";display:block;flex:0 0 16px;width:16px;height:16px;
+  border:2.5px solid #cad9f7;border-top-color:#416ac5;border-radius:50%;
+  animation:fatcatSpin .7s linear infinite
+}
+@keyframes fatcatSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.syncState.loading::before{animation-duration:2s}}
 /* V0.7：正式 API 讀取狀態 */
 .syncState{padding:10px 13px;margin-bottom:12px;border-radius:12px;font-size:13px;line-height:1.5;color:#345e95;background:#edf3ff;border:1px solid #d9e5fa}
 .syncState:empty{display:none}
@@ -225,7 +234,11 @@ const hasCalendar=()=>!!(dashboard && dashboard.year===year && dashboard.month==
 const currentDays=()=>hasCalendar()?dashboard.calendar:[];
 
 function displayName(){$('hello').textContent=(settings.nick||'肥貓')+'同仁，您好！';}
-function setStatus(message,kind=''){$('syncState').className='syncState '+kind;$('syncState').textContent=message;}
+function setStatus(message,kind=''){
+  const loading = !kind && /^正在/.test(String(message||''));
+  $('syncState').className = 'syncState'+(kind?' '+kind:'')+(loading?' loading':'');
+  $('syncState').textContent=message;
+}
 async function api(action,name){
   const params=new URLSearchParams({action});if(name) params.set('name',name);
   const res=await fetch('/api?'+params.toString(),{headers:{Accept:'application/json'},cache:'no-store'});
